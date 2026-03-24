@@ -116,42 +116,30 @@
             width: 50px; text-align: center; border-radius: 4px; font-weight: bold; font-size: 1.1rem;
         }
 /* --- CORRECTIF MOBILE --- */
-@media (max-width: 800px) {
-    body { border: 5px solid red !important; } /* SI TU VOIS DU ROUGE, LE CODE EST LU */
-    /* ... le reste du code ... */
-}
-    /* 1. On force le conteneur principal à passer en colonne */
-    .grid {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 20px !important;
+@media (max-width: 900px) {
+    /* On force TOUT ce qui est en grille à devenir une seule colonne */
+    .grid, main, #container, .main-content { 
+        display: block !important; 
+        width: 100% !important;
         padding: 10px !important;
     }
 
-    /* 2. On crée des sous-grilles pour que les tables soient 2 par 2 */
-    /* Si tu as des div intermédiaires pour tes sections, on les aligne */
-    .section-karaoke, .section-pool, .section-darts {
+    /* On force chaque section (Karaoke, Tables, Darts) à prendre toute la largeur */
+    .section-karaoke, .section-pool, .section-darts, section, aside {
         width: 100% !important;
+        margin-bottom: 30px !important;
+        display: block !important;
     }
 
-    /* 3. On ajuste la taille des cartes pour qu'elles respirent */
+    /* On s'assure que les cartes ne font plus 160px de large mais 100% */
     .card {
-        min-height: 120px !important;
-        width: 100% !important;
-        /* Si tu veux 2 cartes par ligne sur mobile, utilise ceci : */
-        /* width: calc(50% - 10px) !important; display: inline-block; */
+        width: 95% !important;
+        margin: 10px auto !important;
+        min-height: 150px !important;
     }
 
-    /* 4. On diminue drastiquement la taille des textes */
-    h1 { font-size: 1.4rem !important; }
-    .name { font-size: 1rem !important; }
-    .price { font-size: 1.1rem !important; }
-    
-    /* 5. On empêche les boutons de déborder */
-    button {
-        padding: 12px !important;
-        font-size: 0.9rem !important;
-    }
+    /* On réduit le titre pour qu'il ne pousse pas les murs */
+    h1 { font-size: 1.5rem !important; }
 }
     </style>
 </head>
