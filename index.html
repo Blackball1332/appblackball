@@ -4,144 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Black Ball Control - Symétrie & Dynamisme</title>
-    <style>
-        :root {
-            --teal: #00a2a7;
-            --orange: #f15a24;
-            --gap: 15px; 
-        }
+<style>
+    :root {
+        --teal: #00a2a7;
+        --orange: #f15a24;
+        --gap: 15px; 
+    }
 
-        body {
-            margin: 0;
-            padding: var(--gap);
-            font-family: 'Segoe UI', sans-serif;
-            color: white;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-                        url('image de fond.jpg') no-repeat center center fixed;
-            background-size: cover;
-            height: 100vh;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
+    body {
+        margin: 0;
+        padding: var(--gap);
+        font-family: 'Segoe UI', sans-serif;
+        color: white;
+        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                    url('image de fond.jpg') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
+
+    /* DESKTOP (PC) */
+    .main-dashboard {
+        display: grid;
+        grid-template-columns: 1fr 4.5fr 1fr;
+        gap: var(--gap);
+        height: calc(100vh - (var(--gap) * 2));
+    }
+
+    .column {
+        display: grid;
+        grid-template-rows: repeat(3, 1fr);
+        gap: var(--gap);
+    }
+
+    .pool-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
+    .bottom-center-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
+
+    .card {
+        border-radius: 15px;
+        padding: 10px;
+        text-align: center;
+        border: 2px solid rgba(255,255,255,0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        background-size: cover;
+        background-position: center;
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .card::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.9) 100%);
+        z-index: 1;
+    }
+
+    .card > div { position: relative; z-index: 2; }
+
+    .name { font-weight: 900; font-size: 2.2rem; color: #fff; text-transform: uppercase; text-shadow: 0 0 10px var(--teal); }
+    .timer { font-family: monospace; font-size: 2.5rem; font-weight: bold; }
+    .price { font-size: 2rem; font-weight: bold; color: var(--orange); }
+
+    /* --- ADAPTATION MOBILE (Portrait et Paysage) --- */
+    @media (max-width: 1024px) {
+        body { overflow-y: auto; height: auto; } /* On permet le scroll sur mobile */
 
         .main-dashboard {
-            display: grid;
-            grid-template-columns: 1fr 4.5fr 1fr;
-            gap: var(--gap);
-            height: calc(100vh - (var(--gap) * 2));
+            display: flex !important;
+            flex-direction: column !important;
+            height: auto !important;
         }
 
         .column {
-            display: grid;
-            grid-template-rows: repeat(3, 1fr);
-            gap: var(--gap);
-            height: 100%;
+            display: flex !important;
+            flex-direction: column !important;
+            height: auto !important;
         }
 
-        .pool-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
-        .bottom-center-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
+        /* Les lignes de tables passent en 2 colonnes pour être lisibles */
+        .pool-row, .bottom-center-row {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
 
         .card {
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            border: 2px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-            background-size: cover !important;
-            background-position: center !important;
-            height: 100%;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-
-        .card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.95) 100%);
-            z-index: 1;
-        }
-
-        .card > div { position: relative; z-index: 2; }
-
-        .name { 
-            font-weight: 900; 
-            font-size: 3rem; 
-            color: #ffffff; 
-            text-transform: uppercase;
-            text-shadow: 0 0 10px var(--teal), 0 0 20px var(--teal);
-            margin-bottom: 5px;
-        }
-
-        .special-spacer {
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 200px; /* On donne de la hauteur aux cartes */
             margin-bottom: 10px;
         }
 
-        /* INVISIBLE PAR DÉFAUT */
-        .timer-container {
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        /* VISIBLE QUAND ACTIF */
-        .card.active .timer-container { opacity: 1; }
-
-        .card.active { border: 3px solid var(--teal); box-shadow: 0 0 20px rgba(0, 162, 167, 0.5); }
-        .card.paused { border-color: var(--orange); filter: grayscale(0.6) brightness(0.8); }
-
-        .timer { font-family: monospace; font-size: 3rem; margin: 5px 0; font-weight: bold; }
-        .price { font-size: 2.3rem; font-weight: bold; color: var(--orange); margin-bottom: 5px; }
-
-        .btn-row { display: flex; gap: 8px; height: 45px; }
-        button { border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; width: 100%; font-size: 0.8rem; }
+        .name { font-size: 1.8rem; }
+        .timer { font-size: 2rem; }
+        .price { font-size: 1.8rem; }
         
-        .btn-start { background: var(--teal); color: white; }
-        .btn-pause { background: #333; color: white; display: none; width: 30%; font-size: 1.2rem; }
-        .btn-stop { background: var(--orange); color: white; display: none; }
+        .btn-row { height: 50px; } /* Boutons plus gros pour les doigts */
 
-        .logo-card { display: flex; align-items: center; justify-content: center; padding: 10px; }
-        .logo-card img { max-width: 90%; max-height: 90%; object-fit: contain; }
-
-        .karaoke-input {
-            background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--teal);
-            width: 50px; text-align: center; border-radius: 4px; font-weight: bold; font-size: 1.1rem;
-        }
-/* --- CORRECTIF MOBILE --- */
-@media (max-width: 900px) {
-    /* On force TOUT ce qui est en grille à devenir une seule colonne */
-    .grid, main, #container, .main-content { 
-        display: block !important; 
-        width: 100% !important;
-        padding: 10px !important;
+        /* Masquer le logo sur mobile pour gagner de la place si besoin */
+        .logo-card img { max-height: 150px; margin: 20px 0; }
     }
 
-    /* On force chaque section (Karaoke, Tables, Darts) à prendre toute la largeur */
-    .section-karaoke, .section-pool, .section-darts, section, aside {
-        width: 100% !important;
-        margin-bottom: 30px !important;
-        display: block !important;
-    }
-
-    /* On s'assure que les cartes ne font plus 160px de large mais 100% */
-    .card {
-        width: 95% !important;
-        margin: 10px auto !important;
-        min-height: 150px !important;
-    }
-
-    /* On réduit le titre pour qu'il ne pousse pas les murs */
-    h1 { font-size: 1.5rem !important; }
-}
-    </style>
+    /* --- STYLE BOUTONS ET INPUTS --- */
+    .special-spacer { height: 40px; margin-bottom: 5px; }
+    .timer-container { opacity: 0; transition: opacity 0.4s; }
+    .card.active .timer-container { opacity: 1; }
+    .card.active { border: 3px solid var(--teal); }
+    .card.paused { border-color: var(--orange); filter: grayscale(0.6); }
+    button { border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+    .btn-start { background: var(--teal); color: white; height: 100%; }
+    .btn-pause { background: #333; color: white; display: none; width: 30%; font-size: 1.2rem; }
+    .btn-stop { background: var(--orange); color: white; display: none; }
+    .karaoke-input { background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--teal); width: 60px; text-align: center; font-size: 1.2rem; }
+</style>
 </head>
 <body>
 
