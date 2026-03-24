@@ -115,33 +115,39 @@
             background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--teal);
             width: 50px; text-align: center; border-radius: 4px; font-weight: bold; font-size: 1.1rem;
         }
-        /* --- ADAPTATION MOBILE --- */
-@media (max-width: 600px) {
-    body {
-        padding: 10px; /* On réduit l'espace sur les côtés */
-    }
-
-    h1 {
-        font-size: 1.8rem; /* Titre plus petit pour mobile */
-        margin-bottom: 15px;
-    }
-
+/* --- CORRECTIF MOBILE --- */
+@media (max-width: 800px) {
+    /* 1. On force le conteneur principal à passer en colonne */
     .grid {
-        /* On permet aux cartes d'être un peu plus étroites (140px) pour en caser 2 par ligne */
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 10px; 
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        padding: 10px !important;
     }
 
+    /* 2. On crée des sous-grilles pour que les tables soient 2 par 2 */
+    /* Si tu as des div intermédiaires pour tes sections, on les aligne */
+    .section-karaoke, .section-pool, .section-darts {
+        width: 100% !important;
+    }
+
+    /* 3. On ajuste la taille des cartes pour qu'elles respirent */
     .card {
-        padding: 10px; /* On gagne de la place à l'intérieur des cartes */
+        min-height: 120px !important;
+        width: 100% !important;
+        /* Si tu veux 2 cartes par ligne sur mobile, utilise ceci : */
+        /* width: calc(50% - 10px) !important; display: inline-block; */
     }
 
-    .icon {
-        font-size: 1.5rem; /* Icônes légèrement réduites */
-    }
-
-    .price {
-        font-size: 1.2rem;
+    /* 4. On diminue drastiquement la taille des textes */
+    h1 { font-size: 1.4rem !important; }
+    .name { font-size: 1rem !important; }
+    .price { font-size: 1.1rem !important; }
+    
+    /* 5. On empêche les boutons de déborder */
+    button {
+        padding: 12px !important;
+        font-size: 0.9rem !important;
     }
 }
     </style>
