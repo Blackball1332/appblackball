@@ -115,6 +115,35 @@
             background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--teal);
             width: 50px; text-align: center; border-radius: 4px; font-weight: bold; font-size: 1.1rem;
         }
+        /* --- ADAPTATION MOBILE --- */
+@media (max-width: 600px) {
+    body {
+        padding: 10px; /* On réduit l'espace sur les côtés */
+    }
+
+    h1 {
+        font-size: 1.8rem; /* Titre plus petit pour mobile */
+        margin-bottom: 15px;
+    }
+
+    .grid {
+        /* On permet aux cartes d'être un peu plus étroites (140px) pour en caser 2 par ligne */
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px; 
+    }
+
+    .card {
+        padding: 10px; /* On gagne de la place à l'intérieur des cartes */
+    }
+
+    .icon {
+        font-size: 1.5rem; /* Icônes légèrement réduites */
+    }
+
+    .price {
+        font-size: 1.2rem;
+    }
+}
     </style>
 </head>
 <body>
