@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Ball Control - Symétrie & Dynamisme</title>
+    <style>
+        :root {
+            --teal: #00a2a7;
+            --orange: #f15a24;
+            --gap: 15px; 
+        }
+
+        body {
+            margin: 0;
+            padding: var(--gap);
+            font-family: 'Segoe UI', sans-serif;
+            color: white;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+                        url('image de fond.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .main-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 4.5fr 1fr;
+            gap: var(--gap);
+            height: calc(100vh - (var(--gap) * 2));
+        }
+
+        .column {
+            display: grid;
+            grid-template-rows: repeat(3, 1fr);
+            gap: var(--gap);
+            height: 100%;
+        }
+
+        .pool-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--gap); }
+        .bottom-center-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
+
+        .card {
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            height: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.95) 100%);
+            z-index: 1;
+        }
+
+        .card > div { position: relative; z-index: 2; }
+
+        .name { 
+            font-weight: 900; 
+            font-size: 3rem; 
+            color: #ffffff; 
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--teal), 0 0 20px var(--teal);
+            margin-bottom: 5px;
+        }
+
+        .special-spacer {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        /* INVISIBLE PAR DÉFAUT */
+        .timer-container {
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        /* VISIBLE QUAND ACTIF */
+        .card.active .timer-container { opacity: 1; }
+
+        .card.active { border: 3px solid var(--teal); box-shadow: 0 0 20px rgba(0, 162, 167, 0.5); }
+        .card.paused { border-color: var(--orange); filter: grayscale(0.6) brightness(0.8); }
+
+        .timer { font-family: monospace; font-size: 3rem; margin: 5px 0; font-weight: bold; }
+        .price { font-size: 2.3rem; font-weight: bold; color: var(--orange); margin-bottom: 5px; }
+
+        .btn-row { display: flex; gap: 8px; height: 45px; }
+        button { border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; width: 100%; font-size: 0.8rem; }
+        
+        .btn-start { background: var(--teal); color: white; }
+        .btn-pause { background: #333; color: white; display: none; width: 30%; font-size: 1.2rem; }
+        .btn-stop { background: var(--orange); color: white; display: none; }
+
+        .logo-card { display: flex; align-items: center; justify-content: center; padding: 10px; }
+        .logo-card img { max-width: 90%; max-height: 90%; object-fit: contain; }
+
+        .karaoke-input {
+            background: rgba(0,0,0,0.8); color: white; border: 1px solid var(--teal);
+            width: 50px; text-align: center; border-radius: 4px; font-weight: bold; font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-dashboard">
+    <div class="column">
+        <div id="karaoke-1"></div>
+        <div id="karaoke-2"></div>
+        <div class="logo-card"><img src="Logo v2 complet.png" alt="Black Ball"></div>
+    </div>
+
+    <div class="column">
+        <div class="pool-row" id="pool-line-1"></div>
+        <div class="pool-row" id="pool-line-2"></div>
+        <div class="bottom-center-row" id="center-line-3"></div>
+    </div>
+
+    <div class="column">
+        <div id="darts-1"></div>
+        <div id="darts-2"></div>
+        <div id="darts-3"></div>
+    </div>
+</div>
+
+<script>
+    const config = {
+        pool: { rate: 0.21, name: 'Pool', img: 'Pool2.jpg' },
+        snooker: { rate: 0.21, name: 'Snooker', img: 'snooker2.jpg' },
+        darts: { rate: 0.30, name: 'Darts', img: 'Darts.jpg' },
+        karaoke: { rate: 0.13, name: 'Karaoké', img: 'Karaoke.jpg' },
+        shuffle: { rate: 0.21, name: 'Shuffle', img: 'Shuffle.jpg' }
+    };
+
+    let timers = {};
+
+    function init() {
+        for(let i=1; i<=4; i++) createCard('pool-line-1', `p${i}`, config.pool, i);
+        for(let i=5; i<=8; i++) createCard('pool-line-2', `p${i}`, config.pool, i);
+        createCard('center-line-3', 's1', config.snooker, 1);
+        createCard('center-line-3', 's2', config.snooker, 2);
+        createCard('center-line-3', 'sh1', config.shuffle, '');
+        
+        createCard('karaoke-1', 'k1', config.karaoke, 1);
+        createCard('karaoke-2', 'k2', config.karaoke, 2);
+        createCard('darts-1', 'd1', config.darts, 1);
+        createCard('darts-2', 'd2', config.darts, 2);
+        createCard('darts-3', 'd3', config.darts, 3);
+    }
+
+    function createCard(containerId, id, type, num) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.id = `card-${id}`;
+        div.style.backgroundImage = `url('${type.img}')`;
+        
+        let specialContent = type.name === 'Karaoké' ? 
+            `PERS: <input type="number" id="pax-${id}" class="karaoke-input" value="3">` : ``;
+
+        div.innerHTML = `
+            <div>
+                <div class="name">${type.name} ${num}</div>
+                <div class="special-spacer">${specialContent}</div>
+            </div>
+            <div class="timer-container">
+                <div class="timer" id="time-${id}">00:00:00</div>
+                <div class="price" id="price-${id}">0.00 €</div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-start" id="start-${id}" onclick="startTimer('${id}', ${type.rate}, '${type.name}')">Démarrer</button>
+                <button class="btn-pause" id="pause-${id}" onclick="togglePause('${id}')">⏸</button>
+                <button class="btn-stop" id="stop-${id}" onclick="stopTimer('${id}')">Encaisser</button>
+            </div>
+        `;
+        document.getElementById(containerId).appendChild(div);
+    }
+
+    function startTimer(id, rate, type) {
+        const pax = document.getElementById(`pax-${id}`) ? parseInt(document.getElementById(`pax-${id}`).value) : 1;
+        timers[id] = { 
+            start: Date.now(), 
+            elapsed: 0, 
+            rate, type, pax, 
+            isPaused: false,
+            interval: setInterval(() => update(id), 1000) 
+        };
+        document.getElementById(`start-${id}`).style.display = 'none';
+        document.getElementById(`pause-${id}`).style.display = 'block';
+        document.getElementById(`stop-${id}`).style.display = 'block';
+        document.getElementById(`card-${id}`).classList.add('active');
+    }
+
+    function togglePause(id) {
+        const t = timers[id];
+        const btn = document.getElementById(`pause-${id}`);
+        const card = document.getElementById(`card-${id}`);
+
+        if (!t.isPaused) {
+            clearInterval(t.interval);
+            t.elapsed += (Date.now() - t.start);
+            t.isPaused = true;
+            btn.innerText = "▶";
+            card.classList.add('paused');
+        } else {
+            t.start = Date.now();
+            t.isPaused = false;
+            btn.innerText = "⏸";
+            card.classList.remove('paused');
+            t.interval = setInterval(() => update(id), 1000);
+        }
+    }
+
+    function update(id) {
+        const t = timers[id];
+        const ms = (Date.now() - t.start) + t.elapsed;
+        const mins = ms / 60000;
+        let price = mins * t.rate;
+        if (t.type === 'Karaoké') {
+            price = mins * t.rate * t.pax;
+            if (mins <= 60 && price < 30) price = 30;
+        }
+        document.getElementById(`time-${id}`).innerText = new Date(ms).toISOString().substr(11, 8);
+        document.getElementById(`price-${id}`).innerText = price.toFixed(2) + " €";
+    }
+
+    function stopTimer(id) {
+        clearInterval(timers[id].interval);
+        const btnStop = document.getElementById(`stop-${id}`);
+        const btnPause = document.getElementById(`pause-${id}`);
+        btnPause.style.display = 'none';
+        btnStop.style.width = '100%';
+        btnStop.innerText = "RESET / PRÊT";
+        btnStop.onclick = () => location.reload();
+    }
+
+    init();
+</script>
+</body>
+</html>
